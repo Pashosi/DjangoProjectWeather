@@ -17,6 +17,7 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
@@ -57,7 +58,9 @@ ROOT_URLCONF = 'weather.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [
+            BASE_DIR / 'weather/templates',
+        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -77,15 +80,15 @@ WSGI_APPLICATION = 'weather.wsgi.application'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 load_dotenv()
-USER = os.getenv('USER')
-PASSWORD = os.getenv('PASSWORD')
+USER_DB = os.getenv('USER')
+PASSWORD_DB = os.getenv('PASSWORD')
 
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'weather_db',
-        'USER': USER,
-        'PASSWORD': PASSWORD,
+        'USER': USER_DB,
+        'PASSWORD': PASSWORD_DB,
         'HOST': 'localhost',
         'PORT': '5432',
     }
@@ -114,9 +117,9 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'ru-Ru'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Europe/Moscow'
 
 USE_I18N = True
 

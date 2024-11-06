@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block mainmenu %}
+<main>
+    <nav class="navbar navbar-expand-sm  shadow-sm  bg-body-tertiary rounded px-md-1 px-lg-6">
+        <div class="container-fluid justify-content-around flex-nowrap">
+            <form class="d-flex col-md-5" role="search">
+                <input class="form-control me-1 " type="search" placeholder="Поиск локации" aria-label="Поиск">
+                <button class="btn btn-outline-success" type="submit">Поиск</button>
+            </form>
+            <form class="d-flex xl" role="search" method="post" action="{% url 'users:register' %}">
+                {% csrf_token %}
+                <button class="btn btn-outline-secondary-while " type="submit">Войти</button>
+                <div class="collapse navbar-collapse">
+                </div>
+            </form>
+        </div>
+    </nav>
+</main>
+{% endblock mainmenu %}
+
+{% block content %}
+    <p></p>
+    Тут результаты поиска локаций будут
+{% endblock content %}
