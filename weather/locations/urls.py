@@ -4,5 +4,5 @@ from . import views
 app_name = "locations"
 
 urlpatterns = [
-    path('', views.weather_checker, name='index'),
+    path('', views.WeatherChecker.as_view(), name='index'),
 ]
