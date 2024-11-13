@@ -4,19 +4,30 @@
     <main>
         <nav class="navbar navbar-expand-sm  shadow-sm  bg-body-tertiary rounded px-md-1 px-lg-6">
             <div class="container-fluid justify-content-around flex-nowrap">
-                <form class="d-flex col-md-5" role="search" method="post">
-                    {% csrf_token %}
+                <form class="d-flex col-md-5" role="search" method="get" action="{% url 'locations:search' %}">
                     {% for field in form %}
                         {{ field }}
-                        <button class="btn btn-outline-success" type="submit">Поиск</button>
+                        <button class="btn btn-outline-primary" type="submit">Поиск</button>
                     {% endfor %}
                 </form>
-                <form class="d-flex xl" role="search" method="post" action="{% url 'users:register' %}">
-                    {% csrf_token %}
-                    <button class="btn btn-outline-secondary-while " type="submit">Войти</button>
-                    <div class="collapse navbar-collapse">
-                    </div>
-                </form>
+                <div class="d-flex flex-row justify-content-between text-center">
+                    {% if user.is_authenticated %}
+                        <form class="d-flex p-1" action="">
+                            <button class="btn ">{{ user.username }}</button>
+                        </form>
+                        <form class="d-flex p-1" action="{% url 'users:logout' %}" method="post">
+                            {% csrf_token %}
+                            <button class="btn btn-outline-primary ">Выйти</button>
+                        </form>
+                    {% else %}
+                        <form class="d-flex p-1" action="{% url 'users:login' %}">
+                            <button class="btn btn-outline-primary">Войти</button>
+                        </form>
+                        <form class="d-flex p-1" action="{% url 'users:register' %}">
+                            <button class="btn btn-outline-primary ">Регистрация</button>
+                        </form>
+                    {% endif %}
+                </div>
             </div>
         </nav>
     </main>
@@ -24,7 +35,7 @@
 
 {% block content %}
     <p></p>
-    Тут результаты поиска локаций будут
+    Тут результаты добавления локаций
 
     <div class="row row-cols-1 row-cols-xs-1 row-cols-md-2 row-cols-lg-4 g-4 h-100">
         {% for city in cities %}

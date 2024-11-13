@@ -1,9 +1,18 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <p><button type="submit">Войти</button></p>
-    </form>
+   <p></p>
+    <div class="container col-md-4">
+        <h2>Авторизация</h2>
+        <form class="" method="post">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{{ next }}"/>
+            <div class="form-error">{{ form.non_field_errors }}</div>
+            {% for field in form %}
+                <p><label class="" for="{{ field.id_for_label }}">{{ field.label }}: </label>{{ field }}</p>
+                {% if form.errors %}<p>{{ field.errors|first }}</p>{% endif %}
+            {% endfor %}
+            <button class="btn btn-outline-primary" type="submit">Войти</button>
+        </form>
+    </div>
 {% endblock content %}
