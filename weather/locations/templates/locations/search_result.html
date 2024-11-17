@@ -4,17 +4,10 @@
     <main>
         <nav class="navbar navbar-expand-sm  shadow-sm  bg-body-tertiary rounded px-md-1 px-lg-6">
             <div class="container-fluid justify-content-around flex-nowrap">
-                <form class="d-flex col-md-5" method="post" action="{% url 'locations:search' %}">
-                    {% for field in form %}
-                        {% csrf_token %}
-                        {{ field }}
-                        <button class="btn btn-outline-primary" type="submit">Поиск</button>
-                    {% endfor %}
-                </form>
                 <div class="d-flex flex-row justify-content-between text-center">
                     {% if user.is_authenticated %}
                         <form class="d-flex p-1" action="">
-                            <button class="btn ">{{ user.username }}</button>
+                            <button class="btn">{{ user.username }}</button>
                         </form>
                         <form class="d-flex p-1" action="{% url 'users:logout' %}" method="post">
                             {% csrf_token %}
@@ -36,7 +29,7 @@
 
 {% block content %}
     <p></p>
-    Тут результаты добавления локаций
+    Тут результаты поиска локаций
 
     <div class="row row-cols-1 row-cols-xs-1 row-cols-md-2 row-cols-lg-4 g-4 h-100">
         {% for city in cities %}
@@ -44,9 +37,17 @@
                 <div class="card">
                     <img src="..." class="card-img-top" alt="...">
                     <div class="card-body">
-                        <h5 class="card-title">{{ city }}</h5>
+                        <h5 class="card-title">{{ city.name }}</h5>
+                        <h6 class="card-title">{{ city.country }}</h6>
                         <p class="card-text">Это более длинная карта С вспомогательным текстом ниже в качестве
                             естественного перехода к дополнительному контенту. Этот контент немного длиннее.</p>
+                        <form class="d-flex p-1" method="post" action="{% url 'locations:add_location' %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="name" value="{{ city.name }}">
+                            <input type="hidden" name="latitude" value="{{ city.lat }}">
+                            <input type="hidden" name="longitude" value="{{ city.lon }}">
+                            <button class="btn btn-primary ">Добавить</button>
+                        </form>
                     </div>
                 </div>
             </div>

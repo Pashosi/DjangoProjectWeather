@@ -1,50 +1,99 @@
-from django.http import HttpResponse
-from django.shortcuts import render
-from django.views.generic import FormView
+import os
+from decimal import Decimal
+
+from django.shortcuts import render, redirect
+from django.urls import reverse
+from django.views import View
+from django.views.generic import FormView, TemplateView, ListView
+from dotenv import load_dotenv
 
 from locations.forms import SearchLocations
-
+from locations.models import Location
+from locations.services import LocationService
 
 # Create your views here.
-content = {'Москва': 'Показываю город'}
+content = {'м': 'Показываю город Москва', 'п': 'Показываю город П'}
 
-def weather_checker(request):
-    form = SearchLocations(request.POST)
-    if form.is_valid():
-        print(form.cleaned_data)
+# def weather_checker(request):
+#     form = SearchLocations(request.POST)
+#     if form.is_valid():
+#         print(form.cleaned_data)
+#
+#     data = {
+#         'title': 'Страница поиска локаций',
+#         'form': form
+#     }
+#     return render(request, 'locations/index.html', context=data)
 
-    data = {
-        'title': 'Страница поиска локаций',
-        'form': form
-    }
-    return render(request, 'locations/index.html', context=data)
 
 
-
-class WeatherChecker(FormView):
+class WeatherHome(ListView):
     template_name = 'locations/index.html'
-    form_class = SearchLocations
+    model = Location
+    context_object_name = 'cities'
     extra_context = {
-        'title': 'Страница поиска локаций',
+        'title': 'Главная страница',
     }
-    success_url = '/'
 
-    def form_valid(self, form):
-        city = form.cleaned_data['city']
+    def get_queryset(self):
+        locations = Location.objects.filter(user_id_id=self.request.user.id)
+        return locations
 
-        # добавление в сессию новый город
-        cities = self.request.session.get('cities', [])
-        cities.append(city)
-
-        # обновление сессии
-        self.request.session['cities'] = cities
-
-        return super().form_valid(form)
-
-
-    def get_context_data(self, **kwargs):
+    def get_context_data(self, *, object_list=None, **kwargs):
+        # добавление формы в контекст
         context = super().get_context_data(**kwargs)
-        context['cities'] = self.request.session.get('cities', [])
+        context.update({'form': SearchLocations()})
         return context
-    
 
+    # реализация добавление карточки города через пост запрос
+    # def post(self, request, *args, **kwargs):
+    #     form = SearchLocations(request.POST)
+    #     if form.is_valid():
+    #         return redirect(reverse('locations:search'))
+    #     return redirect(reverse('locations:search'))
+
+    # TODO функция с запросом на получение данных от локациях по координатам
+
+
+load_dotenv()
+API_KEY = os.getenv('API_KEY')
+
+class WeatherResultsView(ListView):
+    template_name = 'locations/search_result.html'
+    model = Location
+    extra_context = {
+        'title': 'Страница поиска',
+    }
+
+
+    def post(self, request, *args, **kwargs):
+        location = self.request.POST.get('city')  # Получаем параметр "city" из POST запроса
+
+        # получение списка локаций с координатами
+        location_service = LocationService(API_KEY)
+        locations = location_service.get_coordinate(location)
+
+        # добавление списка в контекст
+        self.extra_context['cities'] = locations
+        return render(request, 'locations/search_result.html', self.extra_context)
+
+class AddLocationView(View):
+
+    def post(self, request, *args, **kwargs):
+        # Получаем координаты из POST запроса
+        location_name = request.POST.get('name')
+        latitude = request.POST.get('latitude')
+        longitude = request.POST.get('longitude')
+
+        location_service = LocationService(API_KEY)
+        location = location_service.get_location_by_coordinates(lat=latitude, lon=longitude)
+
+        if location_name and latitude and longitude:
+            if self.request.user.id:
+                Location.objects.create(
+                    name=location_name,
+                    user_id=self.request.user,
+                    latitude=Decimal(latitude.replace(',', '.')),
+                    longitude=Decimal(longitude.replace(',', '.')),
+                )
+        return redirect(reverse('locations:index'))

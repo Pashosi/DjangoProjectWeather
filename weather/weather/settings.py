@@ -76,8 +76,8 @@ WSGI_APPLICATION = 'weather.wsgi.application'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 load_dotenv()
-USER_DB = os.getenv('USER')
-PASSWORD_DB = os.getenv('PASSWORD')
+USER_DB = os.getenv('USER_DB')
+PASSWORD_DB = os.getenv('PASSWORD_DB')
 
 DATABASES = {
     'default': {
