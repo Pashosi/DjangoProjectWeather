@@ -11,21 +11,6 @@ from locations.forms import SearchLocations
 from locations.models import Location
 from locations.services import LocationService
 
-# Create your views here.
-content = {'м': 'Показываю город Москва', 'п': 'Показываю город П'}
-
-# def weather_checker(request):
-#     form = SearchLocations(request.POST)
-#     if form.is_valid():
-#         print(form.cleaned_data)
-#
-#     data = {
-#         'title': 'Страница поиска локаций',
-#         'form': form
-#     }
-#     return render(request, 'locations/index.html', context=data)
-
-
 
 class WeatherHome(ListView):
     template_name = 'locations/index.html'
@@ -42,7 +27,8 @@ class WeatherHome(ListView):
         list_data_locations = []
 
         for location in locations:
-            loc = location_service.get_location_by_coordinates(lat=location.latitude, lon=location.longitude)
+            loc = location_service.get_location_by_coordinates(id_location=location.id, lat=location.latitude,
+                                                               lon=location.longitude)
             list_data_locations.append(loc)
         return list_data_locations
 
@@ -52,11 +38,18 @@ class WeatherHome(ListView):
         context.update({'form': SearchLocations()})
         return context
 
-    # TODO функция post для удаления карточки
+    def post(self, request, *args, **kwargs):
+        # обработка удаления карточки
+        location_id = self.request.POST.get('id')
+
+        location = Location.objects.get(id=location_id)
+        location.delete()
+        return redirect(reverse('locations:index'))
 
 
 load_dotenv()
 API_KEY = os.getenv('API_KEY')
+
 
 class WeatherResultsView(ListView):
     template_name = 'locations/search_result.html'
@@ -64,7 +57,6 @@ class WeatherResultsView(ListView):
     extra_context = {
         'title': 'Страница поиска',
     }
-
 
     def post(self, request, *args, **kwargs):
         location = self.request.POST.get('city')  # Получаем параметр "city" из POST запроса
@@ -77,6 +69,7 @@ class WeatherResultsView(ListView):
         self.extra_context['cities'] = locations
         return render(request, 'locations/search_result.html', self.extra_context)
 
+
 class AddLocationView(View):
 
     def post(self, request, *args, **kwargs):
@@ -84,9 +77,6 @@ class AddLocationView(View):
         location_name = request.POST.get('name')
         latitude = request.POST.get('latitude')
         longitude = request.POST.get('longitude')
-
-        location_service = LocationService(API_KEY)
-        location = location_service.get_location_by_coordinates(lat=latitude, lon=longitude)
 
         if location_name and latitude and longitude:
             if self.request.user.id:

@@ -24,11 +24,12 @@ class LocationService:
             processed_locations.append(request)
         return processed_locations
 
-    def get_location_by_coordinates(self, lat, lon):
+    def get_location_by_coordinates(self, id_location, lat, lon):
         """"Получение локации по координатам"""
         r = requests.get(f'https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&lang=ru&appid={self.api_key}&units=metric')
         request = r.json()
         location = DTOCurrentWeatherData(
+            id=id_location,
             name=request["name"],
             temp=Decimal(request["main"]["temp"]).quantize(Decimal('1'), ROUND_HALF_UP),
             feels_like=Decimal(request["main"]["feels_like"]).quantize(Decimal('1'), ROUND_HALF_UP),

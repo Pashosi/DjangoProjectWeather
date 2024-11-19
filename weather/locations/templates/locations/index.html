@@ -42,6 +42,11 @@
         {% for city in cities %}
             <div class="col">
                 <div class="card">
+                    <form class="d-flex flex-row-reverse" method="post" action="{% url 'locations:index' %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="id" value="{{ city.id }}">
+                        <button name="delete" class="btn-close"></button>
+                    </form>
                     <img src="..." class="card-img-top" alt="...">
                     <div class="card-body">
                         <h5 class="card-title">{{ city.name }}</h5>

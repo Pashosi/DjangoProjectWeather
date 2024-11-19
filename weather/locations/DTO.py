@@ -18,6 +18,7 @@ class DTOLocationCoordinates:
 
 @dataclass
 class DTOCurrentWeatherData:
+    id: int
     name: str
     temp: Decimal
     feels_like: Decimal
