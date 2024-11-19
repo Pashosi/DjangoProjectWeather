@@ -44,9 +44,11 @@
                 <div class="card">
                     <img src="..." class="card-img-top" alt="...">
                     <div class="card-body">
-                        <h5 class="card-title">{{ city }}</h5>
-                        <p class="card-text">Это более длинная карта С вспомогательным текстом ниже в качестве
-                            естественного перехода к дополнительному контенту. Этот контент немного длиннее.</p>
+                        <h5 class="card-title">{{ city.name }}</h5>
+                        <h6 class="card-title">Температура: {{ city.temp }}</h6>
+                        <h6 class="card-title">Ощущается: {{ city.feels_like }}</h6>
+                        <h6 class="card-title">Ветер: {{ city.gust }}</h6>
+                        <p class="card-text">Код страны: {{ city.country }}</p>
                     </div>
                 </div>
             </div>

@@ -37,7 +37,14 @@ class WeatherHome(ListView):
 
     def get_queryset(self):
         locations = Location.objects.filter(user_id_id=self.request.user.id)
-        return locations
+
+        location_service = LocationService(API_KEY)
+        list_data_locations = []
+
+        for location in locations:
+            loc = location_service.get_location_by_coordinates(lat=location.latitude, lon=location.longitude)
+            list_data_locations.append(loc)
+        return list_data_locations
 
     def get_context_data(self, *, object_list=None, **kwargs):
         # добавление формы в контекст
@@ -45,14 +52,7 @@ class WeatherHome(ListView):
         context.update({'form': SearchLocations()})
         return context
 
-    # реализация добавление карточки города через пост запрос
-    # def post(self, request, *args, **kwargs):
-    #     form = SearchLocations(request.POST)
-    #     if form.is_valid():
-    #         return redirect(reverse('locations:search'))
-    #     return redirect(reverse('locations:search'))
-
-    # TODO функция с запросом на получение данных от локациях по координатам
+    # TODO функция post для удаления карточки
 
 
 load_dotenv()
