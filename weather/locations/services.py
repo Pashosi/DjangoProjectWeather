@@ -34,6 +34,8 @@ class LocationService:
             temp=Decimal(request["main"]["temp"]).quantize(Decimal('1'), ROUND_HALF_UP),
             feels_like=Decimal(request["main"]["feels_like"]).quantize(Decimal('1'), ROUND_HALF_UP),
             gust=Decimal(request["wind"]["speed"]).quantize(Decimal('1.0'), ROUND_HALF_UP),
-            country=request["sys"]["country"]
+            country=request["sys"]["country"],
+            icon=request["weather"][0]["icon"],
+            description=request["weather"][0]["description"],
         )
         return location

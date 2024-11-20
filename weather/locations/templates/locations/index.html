@@ -38,7 +38,7 @@
     <p></p>
     Тут результаты добавления локаций
 
-    <div class="row row-cols-1 row-cols-xs-1 row-cols-md-2 row-cols-lg-4 g-4 h-100">
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-5 g-4 h-100">
         {% for city in cities %}
             <div class="col">
                 <div class="card">
@@ -47,13 +47,20 @@
                         <input type="hidden" name="id" value="{{ city.id }}">
                         <button name="delete" class="btn-close"></button>
                     </form>
-                    <img src="..." class="card-img-top" alt="...">
+                    <div class="d-flex justify-content-center">
+                        <img src="static/locations/images/weather_icon/{{ city.icon }}.png" class="card-img-top w-50"
+                             alt="...">
+                    </div>
                     <div class="card-body">
+                        <h4 class="card-title">{{ city.temp }}℃</h4>
                         <h5 class="card-title">{{ city.name }}</h5>
-                        <h6 class="card-title">Температура: {{ city.temp }}</h6>
-                        <h6 class="card-title">Ощущается: {{ city.feels_like }}</h6>
-                        <h6 class="card-title">Ветер: {{ city.gust }}</h6>
-                        <p class="card-text">Код страны: {{ city.country }}</p>
+                        <p class="card-text mb-1">Температура: {{ city.temp }}℃, {{ city.description }}</p>
+                        <p class="card-text mb-1">Ощущается: {{ city.feels_like }}℃</p>
+                        <p class="card-text mb-1">Ветер: {{ city.gust }}м/с</p>
+                        <p class="card-text mb-1">Код страны: {{ city.country }}
+                            <img src="static/locations/images/flags/{{ city.country }}.svg" height="18"
+                                 class="border rounded-1 border-1 border-1">
+                        </p>
                     </div>
                 </div>
             </div>

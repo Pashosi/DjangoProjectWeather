@@ -24,6 +24,8 @@ class DTOCurrentWeatherData:
     feels_like: Decimal
     gust: Decimal
     country: str
+    icon: str
+    description: str
 
     def __str__(self):
         return f'''(
@@ -32,4 +34,6 @@ class DTOCurrentWeatherData:
             'feels_like': {self.feels_like},
             'gust': {self.gust},
             'country': {self.country},
+            'icon': {self.icon},
+            'description': {self.description}
         )'''
