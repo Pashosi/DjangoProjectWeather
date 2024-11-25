@@ -7,6 +7,7 @@ class DTOLocationCoordinates:
     lat: Decimal
     lon: Decimal
     country: str
+    state: str
 
     def __str__(self):
         return f'''(
@@ -14,6 +15,7 @@ class DTOLocationCoordinates:
             "lat": {self.lat},
             "lon": {self.lon},
             "country": {self.country},
+            "state": {self.state}
         )'''
 
 @dataclass
