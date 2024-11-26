@@ -13,7 +13,7 @@
                 </form>
                 <div class="d-flex flex-row justify-content-between text-center">
                     {% if user.is_authenticated %}
-                        <form class="d-flex p-1" action="">
+                        <form class="d-flex p-1" action="{% url 'users:profile' %}">
                             <button class="btn ">{{ user.username }}</button>
                         </form>
                         <form class="d-flex p-1" action="{% url 'users:logout' %}" method="post">

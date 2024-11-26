@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block navbar %}
+    <main>
+        <nav class="navbar navbar-expand-sm  shadow-sm  bg-body-tertiary rounded px-md-1 px-lg-6">
+            <div class="container-fluid justify-content-end flex-nowrap">
+
+                <div class="d-flex flex-row justify-content-between text-center">
+                    {% if user.is_authenticated %}
+                        <form class="d-flex p-1" action="{% url 'users:profile' %}">
+                            <button class="btn ">{{ user.username }}</button>
+                        </form>
+                        <form class="d-flex p-1" action="{% url 'users:logout' %}" method="post">
+                            {% csrf_token %}
+                            <button class="btn btn-outline-primary ">Выйти</button>
+                        </form>
+                    {% else %}
+                        <form class="d-flex p-1" action="{% url 'users:login' %}">
+                            <button class="btn btn-outline-primary">Войти</button>
+                        </form>
+                        <form class="d-flex p-1" action="{% url 'users:register' %}">
+                            <button class="btn btn-outline-primary ">Регистрация</button>
+                        </form>
+                    {% endif %}
+                </div>
+            </div>
+        </nav>
+    </main>
+{% endblock navbar %}
+
+{% block content %}
+    <p></p>
+    <div class="container col-md-4">
+        <h2>Профиль</h2>
+        {% for message in messages %}
+            <div class="col">
+                <div class="alert alert-primary alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Закрыть"></button>
+                </div>
+            </div>
+        {% endfor %}
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="form-error">{{ form.non_field_errors }}</div>
+            {% for field in form %}
+                <p><label class="" for="{{ field.id_for_label }}">{{ field.label }}: </label>{{ field }}</p>
+                {% if form.errors %}<p>{{ field.errors|first }}</p>{% endif %}
+            {% endfor %}
+            <button class="btn btn-outline-primary" type="submit">Сохранить изменения</button>
+            <hr>
+        </form>
+        <form class="d-flex p-1" action="{% url 'users:password_change' %}">
+            <button class="btn btn-outline-primary btn-lg px-4">Изменить пароль</button>
+        </form>
+        <form class="d-flex p-1" action="{% url 'locations:index' %}">
+            <button class="btn btn-outline-primary btn-lg px-4">Главная страница</button>
+        </form>
+    </div>
+{% endblock content %}
