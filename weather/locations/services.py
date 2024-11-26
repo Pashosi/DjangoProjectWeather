@@ -19,14 +19,17 @@ class LocationService:
 
         if isinstance(locations, list):
             for city in locations:
-                request = DTOLocationCoordinates(
-                    name=city['name'],
-                    lat=Decimal(city["lat"]).quantize(Decimal('1.0000'), ROUND_DOWN),
-                    lon=Decimal(city["lon"]).quantize(Decimal('1.0000'), ROUND_DOWN),
-                    country=city["country"],
-                    state=city["state"],
-                )
-                processed_locations.append(request)
+                try:
+                    request = DTOLocationCoordinates(
+                        name=city['name'],
+                        lat=Decimal(city["lat"]).quantize(Decimal('1.0000'), ROUND_DOWN),
+                        lon=Decimal(city["lon"]).quantize(Decimal('1.0000'), ROUND_DOWN),
+                        country=city["country"],
+                        state=city["state"],
+                    )
+                    processed_locations.append(request)
+                except KeyError as ex:
+                    print(f'Пропустили город из-за ошибки в словаре. Текст {ex}')
         else:
             return locations
         return processed_locations

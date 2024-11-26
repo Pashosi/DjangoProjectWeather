@@ -22,3 +22,5 @@ urlpatterns = [
     path('users/', include('users.urls', namespace="users")),
     path('', include('locations.urls', namespace="home"))
 ]
+
+# handler404 = PageNotFound.as_view()

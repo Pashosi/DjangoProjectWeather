@@ -4,7 +4,7 @@ from decimal import Decimal
 from django.contrib import messages
 from django.shortcuts import render, redirect
 from django.urls import reverse
-from django.views.generic import ListView
+from django.views.generic import ListView, TemplateView
 from dotenv import load_dotenv
 
 from locations.forms import SearchLocations
@@ -96,5 +96,13 @@ class WeatherSearchView(ListView):
             if isinstance(locations, list):
                 self.extra_context['cities'] = locations
             else:
-                self.extra_context['errors'] = locations
+                # self.extra_context['errors'] = locations
+                messages.error(request, message=f'{locations["cod"]}: {locations["message"]}')
+                return redirect(reverse('locations:index'))
             return render(request, 'locations/search_result.html', self.extra_context)
+
+class PageNotFound(TemplateView):
+    template_name = 'page_404.html'
+    extra_context = {
+        'title': 'Страница 404',
+    }

@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="px-4 py-5 my-5 text-center">
+        <h1 class="display-5 fw-bold text-body-emphasis">Ошибка 404</h1>
+        <div class="col-lg-6 mx-auto">
+            <p class="lead mb-4">Кажется что-то пошло не так! Страница, которую вы запрашиваете, не существует. Возможно
+                она устарела, была удалена или был введен не верный адрес в адресной строке</p>
+            <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+                <form class="d-flex p-1" target="_blank" action="{% url 'locations:index' %}">
+                    <button class="btn btn-outline-primary btn-lg px-4">Главная</button>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}
