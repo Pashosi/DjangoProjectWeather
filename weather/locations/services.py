@@ -1,8 +1,11 @@
 from decimal import Decimal, ROUND_DOWN, ROUND_HALF_UP
 
 import requests
+from django.contrib import messages
+from django.shortcuts import redirect
+from requests import request
 
-from locations.DTO import DTOLocationCoordinates, DTOCurrentWeatherData
+from locations.DTO import DTOLocationCoordinates, DTOCurrentWeatherData, DTOErrorLocation
 
 
 class LocationService:
@@ -11,31 +14,84 @@ class LocationService:
 
     def get_coordinate(self, location: str):
         """Получение координат по всем локациям похожим на вводимую"""
-        r = requests.get(f'http://api.openweathermap.org/geo/1.0/direct?q={location}&limit=5&appid={self.api_key}')
-        locations = r.json()
+        locations = self.get_coordinates_locations_by_name_api(location=location)
         processed_locations = []
-        for city in locations:
-            request = DTOLocationCoordinates(
-                name=city['name'],
-                lat=Decimal(city["lat"]).quantize(Decimal('1.0000'), ROUND_DOWN),
-                lon=Decimal(city["lon"]).quantize(Decimal('1.0000'), ROUND_DOWN),
-                country=city["country"]
-            )
-            processed_locations.append(request)
+
+        if isinstance(locations, list):
+            for city in locations:
+                request = DTOLocationCoordinates(
+                    name=city['name'],
+                    lat=Decimal(city["lat"]).quantize(Decimal('1.0000'), ROUND_DOWN),
+                    lon=Decimal(city["lon"]).quantize(Decimal('1.0000'), ROUND_DOWN),
+                    country=city["country"],
+                    state=city["state"],
+                )
+                processed_locations.append(request)
+        else:
+            return locations
         return processed_locations
 
-    def get_location_by_coordinates(self, id_location, lat, lon):
+    def get_location_by_coordinates(self, id_location: int, lat: str, lon: str):
         """"Получение локации по координатам"""
-        r = requests.get(f'https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&lang=ru&appid={self.api_key}&units=metric')
-        request = r.json()
-        location = DTOCurrentWeatherData(
-            id=id_location,
-            name=request["name"],
-            temp=Decimal(request["main"]["temp"]).quantize(Decimal('1'), ROUND_HALF_UP),
-            feels_like=Decimal(request["main"]["feels_like"]).quantize(Decimal('1'), ROUND_HALF_UP),
-            gust=Decimal(request["wind"]["speed"]).quantize(Decimal('1.0'), ROUND_HALF_UP),
-            country=request["sys"]["country"],
-            icon=request["weather"][0]["icon"],
-            description=request["weather"][0]["description"],
-        )
-        return location
+        response_api = self.get_data_by_coordinates_from_api(lat=lat, lon=lon)
+        try:
+            location = DTOCurrentWeatherData(
+                id=id_location,
+                name=response_api["name"],
+                temp=Decimal(response_api["main"]["temp"]).quantize(Decimal('1'), ROUND_HALF_UP),
+                feels_like=Decimal(response_api["main"]["feels_like"]).quantize(Decimal('1'), ROUND_HALF_UP),
+                gust=Decimal(response_api["wind"]["speed"]).quantize(Decimal('1.0'), ROUND_HALF_UP),
+                country=response_api["sys"]["country"],
+                icon=response_api["weather"][0]["icon"],
+                description=response_api["weather"][0]["description"],
+            )
+            return location
+        except Exception:
+            location = DTOErrorLocation(
+                id_location=id_location,
+                cod=response_api['cod'],
+                error_message=response_api['message']
+            )
+            return location
+
+    def get_coordinates_locations_by_name_api(self, location: str):
+        """Запрос вариантов локаций с координатами по названию"""
+        response = requests.get(
+            f'http://api.openweathermap.org/geo/1.0/direct?q={location}&limit=5&appid={self.api_key}')
+        if response.ok:
+            data_response = response.json()
+            if len(data_response) > 0:
+                return data_response
+            else:
+                # вариант когда ни чего не найдено, но статус 200
+                return {"cod": response.status_code, "message": f'{location} не найдена'}
+        else:
+            # варианты 4хх и 5хх ошибок и их сообщений
+            # return self.get_message_error_code(response.status_code)
+            messages.error(response, message=self.get_message_error_code(response.status_code)['message'])
+
+    def get_data_by_coordinates_from_api(self, lat: str, lon: str):
+        """Запрос данных по координатам локации"""
+        response = requests.get(
+            f'https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&lang=ru&appid={self.api_key}&units=metric')
+        if response.ok:
+            data_response = response.json()
+            return data_response
+        else:
+            # варианты 4хх и 5хх ошибок и их сообщений
+            return self.get_message_error_code(response.status_code)
+
+    def get_message_error_code(self, code: int) -> dict:
+        messages = {
+            400: 'Неверный запрос',
+            401: 'Неверный API токен',
+            404: 'Неверные вводимые данные',
+            429: 'Слишком много запросов',
+        }
+        if code in messages:
+            return {"cod": code, 'message': messages[code]}
+        else:
+            return {
+                "cod": code,
+                'message': 'Непредвиденная ошибка, не связанная с правильностью данных. Пожалуйста попробуйте позже.'
+            }

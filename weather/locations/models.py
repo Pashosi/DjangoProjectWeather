@@ -11,3 +11,7 @@ class Location(models.Model):
 
     def __str__(self):
         return self.name
+
+    class Meta:
+        unique_together = [['name', 'user_id', 'latitude', 'longitude']] # уникальный набор полей
+

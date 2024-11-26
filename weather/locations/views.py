@@ -1,10 +1,10 @@
 import os
 from decimal import Decimal
 
+from django.contrib import messages
 from django.shortcuts import render, redirect
 from django.urls import reverse
-from django.views import View
-from django.views.generic import FormView, TemplateView, ListView
+from django.views.generic import ListView
 from dotenv import load_dotenv
 
 from locations.forms import SearchLocations
@@ -29,7 +29,10 @@ class WeatherHome(ListView):
         for location in locations:
             loc = location_service.get_location_by_coordinates(id_location=location.id, lat=location.latitude,
                                                                lon=location.longitude)
-            list_data_locations.append(loc)
+            if not isinstance(loc, dict):
+                list_data_locations.append(loc)
+            else:
+                messages.error(self.request, message='ошибка при получении данных')
         return list_data_locations
 
     def get_context_data(self, *, object_list=None, **kwargs):
@@ -51,7 +54,7 @@ load_dotenv()
 API_KEY = os.getenv('API_KEY')
 
 
-class WeatherResultsView(ListView):
+class WeatherSearchView(ListView):
     template_name = 'locations/search_result.html'
     model = Location
     extra_context = {
@@ -59,31 +62,39 @@ class WeatherResultsView(ListView):
     }
 
     def post(self, request, *args, **kwargs):
-        location = self.request.POST.get('city')  # Получаем параметр "city" из POST запроса
+        method = self.request.POST.get("method_post")
 
-        # получение списка локаций с координатами
-        location_service = LocationService(API_KEY)
-        locations = location_service.get_coordinate(location)
+        # добавление локации
+        if method == "add_post":
+            # Получаем координаты из POST запроса
+            location_name = request.POST.get('name')
+            latitude = request.POST.get('latitude')
+            longitude = request.POST.get('longitude')
 
-        # добавление списка в контекст
-        self.extra_context['cities'] = locations
-        return render(request, 'locations/search_result.html', self.extra_context)
+            if location_name and latitude and longitude:
+                try:
+                    if self.request.user.id:
+                        Location.objects.create(
+                            name=location_name,
+                            user_id=self.request.user,
+                            latitude=Decimal(latitude.replace(',', '.')),
+                            longitude=Decimal(longitude.replace(',', '.')),
+                        )
+                except Exception:
+                    messages.error(request, message=f'ошибка повторного добавления локации {location_name}')
+            return redirect(reverse('locations:index'))
 
+        # пост запрос формы поиска локаций
+        else:
+            location = self.request.POST.get('city')  # Получаем параметр "city" из POST запроса
 
-class AddLocationView(View):
+            # получение списка локаций с координатами
+            location_service = LocationService(API_KEY)
+            locations = location_service.get_coordinate(location)
 
-    def post(self, request, *args, **kwargs):
-        # Получаем координаты из POST запроса
-        location_name = request.POST.get('name')
-        latitude = request.POST.get('latitude')
-        longitude = request.POST.get('longitude')
-
-        if location_name and latitude and longitude:
-            if self.request.user.id:
-                Location.objects.create(
-                    name=location_name,
-                    user_id=self.request.user,
-                    latitude=Decimal(latitude.replace(',', '.')),
-                    longitude=Decimal(longitude.replace(',', '.')),
-                )
-        return redirect(reverse('locations:index'))
+            # добавление списка в контекст
+            if isinstance(locations, list):
+                self.extra_context['cities'] = locations
+            else:
+                self.extra_context['errors'] = locations
+            return render(request, 'locations/search_result.html', self.extra_context)

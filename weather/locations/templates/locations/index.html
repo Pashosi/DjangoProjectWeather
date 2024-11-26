@@ -36,7 +36,19 @@
 
 {% block content %}
     <p></p>
+    {% if messages %}
+        <div class="row row-cols-1 row-cols-sm-1 row-cols-md-2 row-cols-lg-3 g-4 h-100">
+            {% for message in messages %}
+                <div class="col">
+                    <div class="alert alert-primary alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Закрыть"></button>
+                    </div>
+                </div>
 
+            {% endfor %}
+        </div>
+    {% endif %}
     <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-5 g-4 h-100">
         {% for city in cities %}
             <div class="col">
@@ -46,21 +58,29 @@
                         <input type="hidden" name="id" value="{{ city.id }}">
                         <button name="delete" class="btn-close"></button>
                     </form>
-                    <div class="d-flex justify-content-center">
-                        <img src="static/locations/images/weather_icon/{{ city.icon }}.png" class="card-img-top w-50"
-                             alt="...">
-                    </div>
-                    <div class="card-body">
-                        <h4 class="card-title">{{ city.temp }}℃</h4>
-                        <h5 class="card-title">{{ city.name }}</h5>
-                        <p class="card-text mb-1">Температура: {{ city.temp }}℃, {{ city.description }}</p>
-                        <p class="card-text mb-1">Ощущается: {{ city.feels_like }}℃</p>
-                        <p class="card-text mb-1">Ветер: {{ city.gust }}м/с</p>
-                        <p class="card-text mb-1">Код страны: {{ city.country }}
-                            <img src="static/locations/images/flags/{{ city.country }}.svg" height="18"
-                                 alt="{{ city.country }}" class="border rounded-1 border-1 border-1">
-                        </p>
-                    </div>
+                    {% if city.error_message %}
+                        <div class="card-body">
+                            <p class="card-title">код: {{ city.cod }}</p>
+                            <p class="card-title">{{ city.error_message }}</p>
+                        </div>
+                    {% else %}
+                        <div class="d-flex justify-content-center">
+                            <img src="static/locations/images/weather_icon/{{ city.icon }}.png"
+                                 class="card-img-top w-50"
+                                 alt="...">
+                        </div>
+                        <div class="card-body">
+                            <h4 class="card-title">{{ city.temp }}℃</h4>
+                            <h5 class="card-title">{{ city.name }}</h5>
+                            <p class="card-text mb-1">Температура: {{ city.temp }}℃, {{ city.description }}</p>
+                            <p class="card-text mb-1">Ощущается: {{ city.feels_like }}℃</p>
+                            <p class="card-text mb-1">Ветер: {{ city.gust }}м/с</p>
+                            <p class="card-text mb-1">Код страны: {{ city.country }}
+                                <img src="static/locations/images/flags/{{ city.country }}.svg" height="18"
+                                     alt="{{ city.country }}" class="border rounded-1 border-1 border-1">
+                            </p>
+                        </div>
+                    {% endif %}
                 </div>
             </div>
         {% endfor %}

@@ -39,3 +39,12 @@ class DTOCurrentWeatherData:
             'icon': {self.icon},
             'description': {self.description}
         )'''
+
+class DTOErrorLocation:
+    """Класс ошибки получения данных"""
+
+    def __init__(self, id_location, cod, error_message):
+        self.id = id_location
+        self.cod = cod
+        self.error_message = error_message
+

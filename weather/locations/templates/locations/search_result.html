@@ -29,19 +29,27 @@
 
 {% block content %}
     <p></p>
+
     {% if cities %}
         <div class="row row-cols-1 row-cols-xs-1 row-cols-md-2 row-cols-lg-5 g-4 h-100">
             {% for city in cities %}
+                {% if messages %}
+                    {% for message in messages %}
+                        {{ message }}
+                    {% endfor %}
+                {% endif %}
                 <div class="col">
                     <div class="card">
 
                         <div class="card-body">
                             <h5 class="card-title">{{ city.name }}</h5>
-                            <p class="card-title">{{ city.state }} <img src="/static/locations/images/flags/{{ city.country }}.svg" height="18"
-                             alt="{{ city.country }}" class="border rounded-1 border-1 border-1"></p>
+                            <p class="card-title">{{ city.state }} <img
+                                    src="/static/locations/images/flags/{{ city.country }}.svg" height="18"
+                                    alt="{{ city.country }}" class="border rounded-1 border-1 border-1"></p>
                             <p class="card-text"></p>
-                            <form class="d-flex p-1" method="post" action="{% url 'locations:add_location' %}">
+                            <form class="d-flex p-1" method="post" action="{% url 'locations:search' %}">
                                 {% csrf_token %}
+                                <input type="hidden" name="method_post" value="add_post">
                                 <input type="hidden" name="name" value="{{ city.name }}">
                                 <input type="hidden" name="latitude" value="{{ city.lat }}">
                                 <input type="hidden" name="longitude" value="{{ city.lon }}">
@@ -53,6 +61,6 @@
             {% endfor %}
         </div>
     {% elif errors %}
-        <p>{{ errors.message }}</p>
+        <p>{{ errors.cod }}: {{ errors.message }}</p>
     {% endif %}
 {% endblock content %}
