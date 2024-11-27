@@ -4,6 +4,12 @@
     <main>
         <nav class="navbar navbar-expand-sm  shadow-sm  bg-body-tertiary rounded px-md-1 px-lg-6">
             <div class="container-fluid justify-content-around flex-nowrap">
+                <div class="">
+                    <a href="{% url 'locations:index' %}" class="d-inline-flex link-body-emphasis text-decoration-none">
+                        <img src="/static/locations/images/weather_icon/logo.png" alt="Logo" width="40"
+                             class="rounded d-inline-block align-text-top">
+                    </a>
+                </div>
                 <div class="d-flex flex-row justify-content-between text-center">
                     {% if user.is_authenticated %}
                         <form class="d-flex p-1" action="{% url 'users:profile' %}">

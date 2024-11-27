@@ -2,6 +2,7 @@ import os
 from decimal import Decimal
 
 from django.contrib import messages
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.views.generic import ListView, TemplateView
@@ -54,12 +55,15 @@ load_dotenv()
 API_KEY = os.getenv('API_KEY')
 
 
-class WeatherSearchView(ListView):
+class WeatherSearchView(LoginRequiredMixin, ListView):
     template_name = 'locations/search_result.html'
     model = Location
     extra_context = {
         'title': 'Страница поиска',
     }
+    login_url = '/users/login'
+    redirect_field_name = ''
+
 
     def post(self, request, *args, **kwargs):
         method = self.request.POST.get("method_post")
