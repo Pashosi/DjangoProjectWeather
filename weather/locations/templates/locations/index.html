@@ -56,8 +56,9 @@
             {% endfor %}
         </div>
     {% endif %}
+
     <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-5 g-4 h-100">
-        {% for city in cities %}
+        {% for city_id, city in cities.items %}
             <div class="col">
                 <div class="card">
                     <form class="d-flex flex-row-reverse" method="post" action="{% url 'locations:index' %}">

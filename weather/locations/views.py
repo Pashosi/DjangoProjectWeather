@@ -1,8 +1,10 @@
+import logging
 import os
 from decimal import Decimal
 
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.cache import cache
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.views.generic import ListView, TemplateView
@@ -12,6 +14,7 @@ from locations.forms import SearchLocations
 from locations.models import Location
 from locations.services import LocationService
 
+logger = logging.getLogger("locations.errors")
 
 class WeatherHome(ListView):
     template_name = 'locations/index.html'
@@ -25,16 +28,25 @@ class WeatherHome(ListView):
         locations = Location.objects.filter(user_id_id=self.request.user.id)
 
         location_service = LocationService(API_KEY)
-        list_data_locations = []
+        locations_dict = {}
 
         for location in locations:
-            loc = location_service.get_location_by_coordinates(id_location=location.id, lat=location.latitude,
-                                                               lon=location.longitude)
-            if not isinstance(loc, dict):
-                list_data_locations.append(loc)
+            cache_key = 'loc_' + str(location.id)
+            current_location = cache.get(cache_key)
+            if current_location:
+                locations_dict[location.id] = current_location
             else:
-                messages.error(self.request, message='ошибка при получении данных')
-        return list_data_locations
+                logger.info('обращение к API')
+                current_location = location_service.get_location_by_coordinates(id_location=location.id, lat=location.latitude,
+                                                                   lon=location.longitude)
+                if not isinstance(current_location, dict):
+                        cache.set(cache_key, current_location, 120)
+                        locations_dict[location.id] = current_location
+                else:
+                    messages.error(self.request, message='ошибка при получении данных')
+                    logger.error("Ошибка получения данных")
+
+        return locations_dict
 
     def get_context_data(self, *, object_list=None, **kwargs):
         # добавление формы в контекст
@@ -48,6 +60,10 @@ class WeatherHome(ListView):
 
         location = Location.objects.get(id=location_id)
         location.delete()
+
+        # удаление из кеша
+        if cache.get(str(location.id)):
+            cache.delete(str(location.id))
         return redirect(reverse('locations:index'))
 
 
@@ -86,6 +102,7 @@ class WeatherSearchView(LoginRequiredMixin, ListView):
                         )
                 except Exception:
                     messages.error(request, message=f'ошибка повторного добавления локации {location_name}')
+                    logger.info(f"Повторное добавление локации {location_name}")
             return redirect(reverse('locations:index'))
 
         # пост запрос формы поиска локаций
@@ -100,8 +117,8 @@ class WeatherSearchView(LoginRequiredMixin, ListView):
             if isinstance(locations, list):
                 self.extra_context['cities'] = locations
             else:
-                # self.extra_context['errors'] = locations
                 messages.error(request, message=f'{locations["cod"]}: {locations["message"]}')
+                logger.error(f'Ошибка {locations["cod"]}: {locations["message"]}')
                 return redirect(reverse('locations:index'))
             return render(request, 'locations/search_result.html', self.extra_context)
 

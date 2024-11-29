@@ -1,3 +1,4 @@
+import logging
 from decimal import Decimal, ROUND_DOWN, ROUND_HALF_UP
 
 import requests
@@ -7,6 +8,7 @@ from requests import request
 
 from locations.DTO import DTOLocationCoordinates, DTOCurrentWeatherData, DTOErrorLocation
 
+logger = logging.getLogger("locations.errors")
 
 class LocationService:
     def __init__(self, api_key):
@@ -29,9 +31,11 @@ class LocationService:
                     )
                     processed_locations.append(request)
                 except KeyError as ex:
-                    print(f'Пропустили город из-за ошибки в словаре. Текст {ex}')
+                    logger.warning(f'Пропустили город из-за ошибки в словаре. Нет ключа {ex}')
         else:
+            logger.info("Вернулся не список, а словарь ошибки")
             return locations
+
         return processed_locations
 
     def get_location_by_coordinates(self, id_location: int, lat: str, lon: str):
@@ -50,6 +54,7 @@ class LocationService:
             )
             return location
         except Exception:
+            logger.info("Не получил от API локацию")
             location = DTOErrorLocation(
                 id_location=id_location,
                 cod=response_api['cod'],
@@ -70,7 +75,6 @@ class LocationService:
                 return {"cod": response.status_code, "message": f'{location} не найдена'}
         else:
             # варианты 4хх и 5хх ошибок и их сообщений
-            # return self.get_message_error_code(response.status_code)
             messages.error(response, message=self.get_message_error_code(response.status_code)['message'])
 
     def get_data_by_coordinates_from_api(self, lat: str, lon: str):

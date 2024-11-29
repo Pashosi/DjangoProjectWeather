@@ -50,6 +50,41 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+LOGGING = {
+    "version": 1,  # the dictConfig format version
+    "disable_existing_loggers": False,  # retain the default loggers
+    "formatters": {
+            "verbose": {
+                "format": "{levelname} {asctime} {module} {process:d} {thread:d} {message}",
+                "style": "{",
+            },
+            "simple": {
+                "format": "{levelname} {message}",
+                "style": "{",
+            },
+    },
+    "handlers": {
+        "file_error": {
+            "class": "logging.FileHandler",  # класс для вывода журнала в файл
+            "filename": BASE_DIR / "general.log",
+            "level": "WARNING",
+            "encoding": "utf-8",
+        },
+        "console": {
+            "level": "INFO",
+            "class": "logging.StreamHandler",
+            "formatter": "simple"
+        }
+    },
+    "loggers": {
+        "locations.errors": {
+            "handlers": ['console', "file_error"],
+            "level": "DEBUG",
+            "propagate": True,
+        }
+    }
+}
+
 ROOT_URLCONF = 'weather.urls'
 
 TEMPLATES = [
@@ -133,7 +168,7 @@ USE_TZ = True
 STATIC_URL = 'static/'
 
 STATICFILES_DIRS = [
-    BASE_DIR / 'static',
+    BASE_DIR / 'locations/static',
 ]
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
@@ -151,3 +186,10 @@ PASSWORD_HASHERS = [
 LOGIN_URL = '/'
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
+
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.redis.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379",
+    }
+}

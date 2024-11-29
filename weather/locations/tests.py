@@ -5,8 +5,6 @@ from unittest.mock import patch
 
 from dotenv import load_dotenv
 
-import requests
-
 from .data_for_tests import data_json_list_locations, data_json_location
 from .services import LocationService
 
