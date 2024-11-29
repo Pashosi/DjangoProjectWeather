@@ -52,9 +52,10 @@ class LocationService:
                 icon=response_api["weather"][0]["icon"],
                 description=response_api["weather"][0]["description"],
             )
+            logger.info(f'погода {response_api["weather"][0]["icon"]}')
             return location
         except Exception:
-            logger.info("Не получил от API локацию")
+            logger.error("Не получил от API локацию")
             location = DTOErrorLocation(
                 id_location=id_location,
                 cod=response_api['cod'],
@@ -66,6 +67,7 @@ class LocationService:
         """Запрос вариантов локаций с координатами по названию"""
         response = requests.get(
             f'http://api.openweathermap.org/geo/1.0/direct?q={location}&limit=5&appid={self.api_key}')
+
         if response.ok:
             data_response = response.json()
             if len(data_response) > 0:
@@ -79,14 +81,21 @@ class LocationService:
 
     def get_data_by_coordinates_from_api(self, lat: str, lon: str):
         """Запрос данных по координатам локации"""
-        response = requests.get(
-            f'https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&lang=ru&appid={self.api_key}&units=metric')
-        if response.ok:
-            data_response = response.json()
-            return data_response
-        else:
-            # варианты 4хх и 5хх ошибок и их сообщений
-            return self.get_message_error_code(response.status_code)
+        try:
+            response = requests.get(
+                f'https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&lang=ru&appid={self.api_key}&units=metric')
+            if response.ok:
+                data_response = response.json()
+                return data_response
+
+            else:
+                logger.error('другая обработка')
+                # варианты 4хх и 5хх ошибок и их сообщений
+                return self.get_message_error_code(response.status_code)
+        except Exception as ex:
+            logger.error(ex)
+            return self.get_message_error_code(500)
+
 
     def get_message_error_code(self, code: int) -> dict:
         messages = {

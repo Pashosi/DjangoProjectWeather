@@ -17,10 +17,12 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
+from locations.views import PageNotFound
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('users/', include('users.urls', namespace="users")),
     path('', include('locations.urls', namespace="home"))
 ]
 
-# handler404 = PageNotFound.as_view()
+handler404 = PageNotFound.as_view()

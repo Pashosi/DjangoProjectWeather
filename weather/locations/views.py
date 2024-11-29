@@ -36,15 +36,12 @@ class WeatherHome(ListView):
             if current_location:
                 locations_dict[location.id] = current_location
             else:
-                logger.info('обращение к API')
+                logger.info('обращение к API по координатам')
                 current_location = location_service.get_location_by_coordinates(id_location=location.id, lat=location.latitude,
                                                                    lon=location.longitude)
-                if not isinstance(current_location, dict):
-                        cache.set(cache_key, current_location, 120)
-                        locations_dict[location.id] = current_location
-                else:
-                    messages.error(self.request, message='ошибка при получении данных')
-                    logger.error("Ошибка получения данных")
+
+                cache.set(cache_key, current_location, 120)
+                locations_dict[location.id] = current_location
 
         return locations_dict
 
