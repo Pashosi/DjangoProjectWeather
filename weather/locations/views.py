@@ -98,7 +98,7 @@ class WeatherSearchView(LoginRequiredMixin, ListView):
                             longitude=Decimal(longitude.replace(',', '.')),
                         )
                 except Exception as ex:
-                    messages.error(request, message=f'ошибка повторного добавления локации {location_name}')
+                    messages.error(request, message=f'Локация {location_name} уже добавлена')
                     logger.info(f"Повторное добавление локации {location_name} {ex}")
             return redirect(reverse('locations:index'))
 
@@ -114,7 +114,7 @@ class WeatherSearchView(LoginRequiredMixin, ListView):
             if isinstance(locations, list):
                 self.extra_context['cities'] = locations
             else:
-                messages.error(request, message=f'{locations["cod"]}: {locations["message"]}')
+                messages.error(request, message=f'{locations["message"]}')
                 logger.error(f'Ошибка {locations["cod"]}: {locations["message"]}')
                 return redirect(reverse('locations:index'))
             return render(request, 'locations/search_result.html', self.extra_context)
