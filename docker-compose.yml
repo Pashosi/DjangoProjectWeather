@@ -1,0 +1,55 @@
+version: "3.10"
+
+
+services:
+  dm_db:
+    image: postgres:latest
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    env_file:
+      - .env
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: django_app
+    image: django_app
+    expose:
+      - 8000
+    volumes:
+      - static_volume:/app/static
+    depends_on:
+      - dm_db
+      - redis
+    env_file:
+      - .env
+#    command: bash -c "python weather/manage.py migrate && python weather/manage.py runserver 0.0.0.0:8000"
+    command: gunicorn weather.wsgi:application --bind 0.0.0.0:8000 --log-level info
+  nginx:
+    build: ./nginx
+    container_name: weather_nginx
+    image: weather_nginx
+    volumes:
+      - static_volume:/app/static
+    ports:
+      - 8000:80
+    depends_on:
+      - web
+
+  redis:
+    image: redis:latest
+    container_name: name_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+volumes:
+  static_volume:
+  postgres_data:
+  redis_data:
+
+networks:
+  default:
+    driver: bridge
+
