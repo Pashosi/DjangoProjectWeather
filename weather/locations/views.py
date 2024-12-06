@@ -74,7 +74,7 @@ class WeatherSearchView(LoginRequiredMixin, ListView):
     extra_context = {
         'title': 'Страница поиска',
     }
-    login_url = '/users/login'
+    login_url = '/users/login/'
     redirect_field_name = ''
 
 
@@ -97,9 +97,9 @@ class WeatherSearchView(LoginRequiredMixin, ListView):
                             latitude=Decimal(latitude.replace(',', '.')),
                             longitude=Decimal(longitude.replace(',', '.')),
                         )
-                except Exception:
+                except Exception as ex:
                     messages.error(request, message=f'ошибка повторного добавления локации {location_name}')
-                    logger.info(f"Повторное добавление локации {location_name}")
+                    logger.info(f"Повторное добавление локации {location_name} {ex}")
             return redirect(reverse('locations:index'))
 
         # пост запрос формы поиска локаций

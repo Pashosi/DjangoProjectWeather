@@ -3,8 +3,7 @@ from decimal import Decimal, ROUND_DOWN, ROUND_HALF_UP
 
 import requests
 from django.contrib import messages
-from django.shortcuts import redirect
-from requests import request
+
 
 from locations.DTO import DTOLocationCoordinates, DTOCurrentWeatherData, DTOErrorLocation
 
@@ -26,7 +25,7 @@ class LocationService:
                         name=city['name'],
                         lat=Decimal(city["lat"]).quantize(Decimal('1.0000'), ROUND_DOWN),
                         lon=Decimal(city["lon"]).quantize(Decimal('1.0000'), ROUND_DOWN),
-                        country=city["country"],
+                        country=city["country"].lower(),
                         state=city["state"],
                     )
                     processed_locations.append(request)
@@ -48,7 +47,7 @@ class LocationService:
                 temp=Decimal(response_api["main"]["temp"]).quantize(Decimal('1'), ROUND_HALF_UP),
                 feels_like=Decimal(response_api["main"]["feels_like"]).quantize(Decimal('1'), ROUND_HALF_UP),
                 gust=Decimal(response_api["wind"]["speed"]).quantize(Decimal('1.0'), ROUND_HALF_UP),
-                country=response_api["sys"]["country"],
+                country=response_api["sys"]["country"].lower(),
                 icon=response_api["weather"][0]["icon"],
                 description=response_api["weather"][0]["description"],
             )

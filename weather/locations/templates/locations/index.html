@@ -83,7 +83,7 @@
                             <p class="card-text mb-1">Температура: {{ city.temp }}℃, {{ city.description }}</p>
                             <p class="card-text mb-1">Ощущается: {{ city.feels_like }}℃</p>
                             <p class="card-text mb-1">Ветер: {{ city.gust }}м/с</p>
-                            <p class="card-text mb-1">Код страны: {{ city.country }}
+                            <p class="card-text mb-1">Код страны: {{ city.country.upper }}
                                 <img src="static/locations/images/flags/{{ city.country }}.svg" height="18"
                                      alt="{{ city.country }}" class="border rounded-1 border-1 border-1">
                             </p>

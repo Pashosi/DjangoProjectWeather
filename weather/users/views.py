@@ -1,8 +1,6 @@
-from django.contrib.auth import authenticate, login, get_user_model, logout
+from django.contrib.auth import get_user_model
 from django.contrib.auth.views import LoginView, LogoutView, PasswordChangeView
-from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
-from django.shortcuts import render
-from django.urls import reverse_lazy, reverse
+from django.urls import reverse_lazy
 from django.views.generic import CreateView, UpdateView
 from django.contrib import messages
 
