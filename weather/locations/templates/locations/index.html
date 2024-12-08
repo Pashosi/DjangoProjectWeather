@@ -11,6 +11,7 @@
                              class="rounded d-inline-block align-text-top">
                     </a>
                 </div>
+            {% if user.is_authenticated %}
                 <form class="d-flex col-md-5" method="post" action="{% url 'locations:search' %}">
                     {% for field in form %}
                         {% csrf_token %}
@@ -18,6 +19,7 @@
                         <button class="btn btn-outline-primary" type="submit">Поиск</button>
                     {% endfor %}
                 </form>
+            {% endif %}
                 <div class="d-flex flex-row justify-content-between text-center">
                     {% if user.is_authenticated %}
                         <form class="d-flex p-1" action="{% url 'users:profile' %}">
