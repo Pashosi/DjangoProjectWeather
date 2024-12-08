@@ -22,9 +22,9 @@ class LocationService:
             for city in locations:
                 try:
                     request = DTOLocationCoordinates(
-                        name=city['name'],
-                        lat=Decimal(city["lat"]).quantize(Decimal('1.0000'), ROUND_DOWN),
-                        lon=Decimal(city["lon"]).quantize(Decimal('1.0000'), ROUND_DOWN),
+                        name=city.get('local_names', {}).get('ru', city['name']) if city.get('local_names') else city['name'],
+                        lat=Decimal(city["lat"]).quantize(Decimal('1.000000'), ROUND_DOWN),
+                        lon=Decimal(city["lon"]).quantize(Decimal('1.000000'), ROUND_DOWN),
                         country=city["country"].lower(),
                         state=city["state"],
                     )
@@ -37,13 +37,13 @@ class LocationService:
 
         return processed_locations
 
-    def get_location_by_coordinates(self, id_location: int, lat: str, lon: str):
+    def get_location_by_coordinates(self, id_location: int, lat: str, lon: str, name_location: str = None):
         """"Получение локации по координатам"""
         response_api = self.get_data_by_coordinates_from_api(lat=lat, lon=lon)
         try:
             location = DTOCurrentWeatherData(
                 id=id_location,
-                name=response_api["name"],
+                name=name_location if name_location else response_api["name"],
                 temp=Decimal(response_api["main"]["temp"]).quantize(Decimal('1'), ROUND_HALF_UP),
                 feels_like=Decimal(response_api["main"]["feels_like"]).quantize(Decimal('1'), ROUND_HALF_UP),
                 gust=Decimal(response_api["wind"]["speed"]).quantize(Decimal('1.0'), ROUND_HALF_UP),
