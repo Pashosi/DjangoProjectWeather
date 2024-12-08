@@ -38,7 +38,7 @@ class WeatherHome(ListView):
             else:
                 logger.info('обращение к API по координатам')
                 current_location = location_service.get_location_by_coordinates(id_location=location.id, lat=location.latitude,
-                                                                   lon=location.longitude)
+                                                                   lon=location.longitude, name_location=location.name)
 
                 cache.set(cache_key, current_location, 120)
                 locations_dict[location.id] = current_location
