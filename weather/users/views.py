@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model
-from django.contrib.auth.views import LoginView, LogoutView, PasswordChangeView
+from django.contrib.auth.views import LoginView, PasswordChangeView, LogoutView
+from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.views.generic import CreateView, UpdateView
 from django.contrib import messages
@@ -18,6 +19,12 @@ class LoginUser(LoginView):
         else:
             return '/'
 
+class LogoutUser(LogoutView):
+    # перенаправление на главную страницу если не авторизирован
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return redirect('/')
+        return super().dispatch(request, *args, **kwargs)
 
 class RegisterUser(CreateView):
     form_class = RegisterUserForm
