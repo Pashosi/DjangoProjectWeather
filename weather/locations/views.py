@@ -54,15 +54,18 @@ class WeatherHome(ListView):
     def post(self, request, *args, **kwargs):
         # обработка удаления карточки
         location_id = self.request.POST.get('id')
+        if Location.objects.filter(user_id_id=self.request.user.id, id=location_id).exists():
+            location = Location.objects.get(id=location_id)
+            location.delete()
 
-        location = Location.objects.get(id=location_id)
-        location.delete()
-
-        # удаление из кеша
-        if cache.get(str(location.id)):
-            cache.delete(str(location.id))
-        return redirect(reverse('locations:index'))
-
+            # удаление из кеша
+            if cache.get(str(location.id)):
+                cache.delete(str(location.id))
+            return redirect(reverse('locations:index'))
+        else:
+            logger.info("Попытка удаления не своей локации")
+            messages.error(request, 'Такой локации у вас нет')
+            return redirect(reverse('locations:index'))
 
 load_dotenv()
 API_KEY = os.getenv('API_KEY')
