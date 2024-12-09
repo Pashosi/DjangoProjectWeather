@@ -1,6 +1,9 @@
+import re
+
 from django import forms
 from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, PasswordChangeForm
+from django.core.exceptions import ValidationError
 
 
 class LoginUserForm(AuthenticationForm):
@@ -20,6 +23,14 @@ class RegisterUserForm(UserCreationForm):
     class Meta:
         model = get_user_model()
         fields = ('username', 'email', 'password1', 'password2')
+
+    def clean_username(self):
+        username = self.cleaned_data['username']
+
+        if re.fullmatch(r'[a-zA-Z0-9.]+', username):
+            return username
+        else:
+            raise ValidationError("Логин должен содержать только буквы латинского алфавита (a–z), цифры (0–9) и точки (.)")
 
     def clean_email(self):
         email = self.cleaned_data['email']
@@ -48,3 +59,11 @@ class ProfileUserForm(forms.ModelForm):
             'username': forms.TextInput(attrs={'class': 'form-control me-1'}),
             'email': forms.TextInput(attrs={'class': 'form-control me-1'})
         }
+
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        user_id = self.instance.id
+
+        if get_user_model().objects.filter(email=email).exclude(id=user_id).exists():
+            raise ValidationError("Этот email уже используется другим пользователем.")
+        return email
